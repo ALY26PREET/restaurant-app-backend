@@ -70,6 +70,9 @@ class Restaurant:
     def getCategories(self, email):
         return restaurants.find({"email":email}, {"_id":0, "categories":1})
 
+    def addTable(self, email, floorNum, tableID):
+        pass
+
 
 
 #THIS IS A COMMENT AND IS MADE BY RITESH. 
