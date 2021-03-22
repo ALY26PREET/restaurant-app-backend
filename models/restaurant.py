@@ -1,8 +1,15 @@
 from . import restaurants
+from . import products
+from . import categories
 from bson.objectid import ObjectId
+from bson.json_util import dumps
+import json
+
+
 def printSomething():
     for x in restaurants.find({}):
         print(x)
+
 
 class Restaurant:
     def __init__(self, restaurantName=None, email=None, password=None):
@@ -14,66 +21,95 @@ class Restaurant:
         else:
             pass
 
-    
     def add(self, restaurantName, email, password):
         itemsToAdd = {
-            "name":restaurantName, 
-            "email":email, 
-            "password":password,
-            "floors":2,
-            "hours":{
-                "sunday":[0000, 2359],
-                "monday":[0000, 2359],
-                "tuesday":[0000, 2359],
-                "wednesday":[0000, 2359],
-                "thursday":[0000, 2359],
-                "friday":[0000, 2359],
-                "saturday":[0000, 2359],
-            }, 
-            "categories":{
-                "Default":[]
-            }   
-
+            "name": restaurantName,
+            "email": email,
+            "password": password,
+            "floors": 2,
+            "hours": {
+                "sunday": [0000, 2359],
+                "monday": [0000, 2359],
+                "tuesday": [0000, 2359],
+                "wednesday": [0000, 2359],
+                "thursday": [0000, 2359],
+                "friday": [0000, 2359],
+                "saturday": [0000, 2359],
+            },
+            "id": str(ObjectId())
 
         }
 
         restaurants.insert_one(itemsToAdd)
 
-
     def getAll(self):
-        l = [x for x in restaurants.find({}, { "_id":0 })]
+        l = [x for x in restaurants.find({}, {"_id": 0})]
         return l
 
     def getAuthenticated(self, email, password):
         all = restaurants.find_one({
-            "email":email,
-            "password":password
-        }, {"_id":0 })
-       
+            "email": email,
+            "password": password
+        }, {"_id": 0})
+
         return all
 
     def getOne(self, email):
         val = restaurants.find_one({
-            "email":email
-        }, {"_id":0})
+            "email": email
+        }, {"_id": 0})
 
         return val
-    def addCategory(self,email, category):
-        restaurants.update_one({"email":email}, {"$set":{"categories."+category:[]}})
-        return "DONE"
-    def addProduct(self, email, category, product):
-        print(email, category, product)
-        product['id'] = str(ObjectId())
-        restaurants.update_one({"email":email}, {"$push":{"categories."+category : product }})
-        return "DONE"
 
-    def getCategories(self, email):
-        return restaurants.find({"email":email}, {"_id":0, "categories":1})
 
-    def addTable(self, email, floorNum, tableID):
+class Product:
+    def __init__(self, category):
+        self.category = category
         pass
 
+    def add(self, name, price):
+        product = {
+            'name': name,
+            'price': price,
+            'category': self.category,
+            'is_active': 'true',
+            'image_url': 'https://picsum.photos/300x300',
+            'id': str(ObjectId())
+        }
+        products.insert_one(product)
+        return {"status": "OK", "message": "New Product has been added Successfully"}
+
+    def getAll(self):
+        return products.find({}, {'_id': 0})
 
 
-#THIS IS A COMMENT AND IS MADE BY RITESH. 
+class Category:
+    def __init__(self, restaurant):
+        self.restaurant = restaurant
+        pass
+
+    def add(self, name):
+        category = {
+            'restaurant': self.restaurant,
+            'category': name,
+            'id': str(ObjectId())
+        }
+        categories.insert_one(category)
+        return {'status': 'OK', 'message': 'Category has been successfully added'}
+
+    def getAll(self):
+        return categories.find({}, {'_id': 0})
+
+    def getAllFromRestaurant(self, restaurant):
+        return categories.find({'restaurant': restaurant}, {'_id': 0})
+
+    def deleteOne(self, id):
+        categories.delete_one({"id": id, 'restaurant': self.restaurant})
+        return {'status': 'OK', 'message': 'Category has been successfully deleted'}
+
+    def deleteAll(self):
+        categories.delete_many({})
+        return {'status': 'OK', 'message': 'All categories has been successfully deleted'}
+
+# THIS IS A COMMENT AND IS MADE BY RITESH.
 
