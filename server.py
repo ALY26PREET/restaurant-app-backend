@@ -5,6 +5,8 @@ from bson.json_util import dumps
 from models.restaurant import printSomething
 import models.restaurant as mr
 
+restaurant = '6056da15153d84013aee5426'
+
 app = Flask(__name__)
 api = Api(app)
 
@@ -32,23 +34,50 @@ class Restaurant(Resource):
             if 'email' in json and 'password' in json:
                 res = mr.Restaurant().getAuthenticated(json['email'], json['password'])
                 return jsonify({"login": "false"}) if res == None else jsonify(res)
-        return mr.Restaurant().getAll()
+        return jsonify(mr.Restaurant().getAll())
 
 
 class Product(Resource):
     def post(self):
         json = request.get_json()
-        if 'email' in json and 'product' not in json:
-            res = mr.Restaurant().addCategory(json['email'], json['category'])
-            return jsonify({"status": "OK", "message": "Category created successfully"})
-        elif 'email' in json and 'product' in json:
-            res = mr.Restaurant().addProduct(json['email'], json['category'], json['product'])
-            return jsonify({"status": "OK", "message": "Product created successfully"})
-        return jsonify({"status": "Failed", "message": "Product cannot be added."})
+        json = json if json != None else {}
+        if 'name' in json and 'price' and 'category' in json and 'restaurant' in json and 'variants' in json and 'image' in json:
+            return mr.Product(json['restaurant'], json['category']).add(json['name'], json['price'], json['variants'],
+                                                                        json['image'])
+        return {"status": "Failed", "message": "Please provide 'name, price and category' fields"}
 
     def get(self):
-        res = mr.Restaurant().getCategories('kishore@smooth.tech')
-        return jsonify(res[0]["categories"])
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'category' in json:
+            return list(mr.Product(json['restaurant'], json['category']).getAll())
+        return {"status": "Failed", "message": "Please provide 'category' to get the products for"}
+
+
+class Category(Resource):
+    def post(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'name' not in json and 'restaurant' not in json:
+            return {'status': 'Failed', 'message': 'Please include the \'name\' and \'restaurant\' in the request'}
+        else:
+            res = mr.Category(json['restaurant']).add(json['name'])
+            return res
+
+    def get(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'restaurant' in json:
+            return list(mr.Category(json['restaurant']).getAll())
+        return {'status': 'Failed', 'message': 'Please include the \'restaurant\' in the request'}
+
+    def delete(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'category_id' in json:
+            return mr.Category(restaurant).deleteOne(json['category_id'])
+        else:
+            return mr.Category(restaurant).deleteAll()
 
 
 class Table(Resource):
@@ -58,6 +87,7 @@ class Table(Resource):
 
 api.add_resource(Restaurant, '/restaurant/')
 api.add_resource(Product, '/product/')
+api.add_resource(Category, '/category/')
 
 if __name__ == '__main__':
     app.run()
