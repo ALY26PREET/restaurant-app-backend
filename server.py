@@ -5,8 +5,6 @@ from bson.json_util import dumps
 from models.restaurant import printSomething
 import models.restaurant as mr
 
-restaurant = '6056da15153d84013aee5426'
-
 app = Flask(__name__)
 api = Api(app)
 
@@ -50,8 +48,24 @@ class Product(Resource):
         json = request.get_json()
         json = json if json != None else {}
         if 'category' in json:
-            return list(mr.Product(json['restaurant'], json['category']).getAll())
+            return list(mr.Product(json['restaurant'], json['category']).get())
         return {"status": "Failed", "message": "Please provide 'category' to get the products for"}
+
+    def delete(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'product' in json:
+            mr.Product(json['restaurant'], json['category']).deleteOne(json['product'])
+            return {"status": "OK", "message": "Product Deleted Successfully"}
+        return {"status": "Failed", "message": "Unable to delete the product."}
+
+    def patch(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'product' in json:
+            mr.Product(json['restaurant'], json['category']).activate(json['product'])
+            return {"status": "OK", "message": "Product Updated Successfully"}
+        return {"status": "Failed", "message": "Unable to Update the product."}
 
 
 class Category(Resource):
@@ -75,9 +89,10 @@ class Category(Resource):
         json = request.get_json()
         json = json if json != None else {}
         if 'category_id' in json:
-            return mr.Category(restaurant).deleteOne(json['category_id'])
+            mr.Product(json['restaurant'], json['category_id']).delete()
+            return mr.Category(json['restaurant']).deleteOne(json['category_id'])
         else:
-            return mr.Category(restaurant).deleteAll()
+            return mr.Category(json['restaurant']).deleteAll()
 
 
 class Table(Resource):
