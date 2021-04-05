@@ -68,12 +68,12 @@ class Order:
         self.restaurant = restaurant
         if orders.find({self.restaurant: {"$exists": True}}).limit(1).count() == 0:
             orders.insert_one({
-                self.restaurant:[]
+
             })
     def get(self):
-        l = [x for x in orders.find({}, {"_id": 0})]
-        return l
-        return l
+        l = [x for x in orders.find({self.restaurant:{"$exists":True}}, {"_id": 0})]
+        return l[0][self.restaurant]
+
     def add(self, products, details):
         order_id = str(ObjectId())
         if orders.find({self.restaurant: {"$exists":True}}).limit(1).count() == 1:
