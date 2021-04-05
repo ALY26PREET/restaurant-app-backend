@@ -100,9 +100,16 @@ class Table(Resource):
         return jsonify({"message": "Will Start working on Tables soon"})
 
 
+# Restaurant -> ORDER_ID -> tray (products(product_name, category_name, price, qty) order_details(hst, subtotal, tip, total))
+class Orders(Resource):
+    def post(selfself):
+        return {'message':'Orders will be created soon'}
+
+
 api.add_resource(Restaurant, '/restaurant/')
 api.add_resource(Product, '/product/')
 api.add_resource(Category, '/category/')
+api.add_resource(Orders, '/orders/')
 
 if __name__ == '__main__':
     app.run()

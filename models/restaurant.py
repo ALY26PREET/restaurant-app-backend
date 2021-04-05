@@ -85,6 +85,16 @@ class Product:
     def getAll(self):
         return products.find({}, {'_id': 0})
 
+    def get(self):
+        return products.find({"restaurant": self.restaurant, "category": self.category}, {'_id': 0})
+
+    def delete(self):
+        return products.delete_many({"restaurant": self.restaurant, "category": self.category})
+
+    def deleteOne(self, product):
+        print("Entered -----------------")
+        return products.delete_one({"id": product})
+
 
 class Category:
     def __init__(self, restaurant):
