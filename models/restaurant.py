@@ -66,13 +66,20 @@ class Restaurant:
 class Order:
     def __init__(self, restaurant):
         self.restaurant = restaurant
+        if orders.find({self.restaurant: {"$exists": True}}).limit(1).count() == 0:
+            orders.insert_one({
+                self.restaurant:[]
+            })
+    def get(self):
+        l = [x for x in orders.find({}, {"_id": 0})]
+        return l
+        return l
     def add(self, products, details):
         order_id = str(ObjectId())
-        order = {
-            ''+order_id : {
+        if orders.find({self.restaurant: {"$exists":True}}).limit(1).count() == 1:
 
-            }
-        }
+            return True
+        return False
 
 class Product:
     def __init__(self, restaurant, category):

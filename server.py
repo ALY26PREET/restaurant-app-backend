@@ -102,8 +102,28 @@ class Table(Resource):
 
 # Restaurant -> ORDER_ID -> tray (products(product_name, category_name, price, qty) order_details(hst, subtotal, tip, total))
 class Orders(Resource):
-    def post(selfself):
-        return {'message':'Orders will be created soon'}
+    def post(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        print(json)
+        print("----")
+        if 'restaurant' in json:
+            restaurant = json['restaurant']
+            order = mr.Order(restaurant).add({},{})
+            return {'message':'You are right '+str(order)}
+
+
+        return {'message':'please include \'restaurant\' in /orders/ request'}
+    def get(self):
+        json = request.get_json()
+        json = json if json != None else {}
+
+        if 'restaurant' in json:
+            restaurant = json['restaurant']
+            order = mr.Order(restaurant).get()
+            return jsonify(order)
+
+        return {'message': 'please include \'restaurant\' in /orders/ request'}
 
 
 api.add_resource(Restaurant, '/restaurant/')
