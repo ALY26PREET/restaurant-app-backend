@@ -77,7 +77,11 @@ class Order:
     def add(self, products, details):
         order_id = str(ObjectId())
         if orders.find({self.restaurant: {"$exists":True}}).limit(1).count() == 1:
-
+            order = {
+                'id':order_id,
+                'products':products, #this will be an array of objects
+                'details':details #this will be an object with 3 fields
+            }
             return True
         return False
 

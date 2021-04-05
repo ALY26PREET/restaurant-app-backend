@@ -109,6 +109,16 @@ class Orders(Resource):
         print("----")
         if 'restaurant' in json:
             restaurant = json['restaurant']
+            products = json['products']  # this is an array of products
+
+            result = map(lambda x: 'name' in x and 'price' in x and 'qty' in x, products)
+            print(result)
+            if False in result:
+                return {'message': 'Please include name, price, qty in all products'}
+            else:
+                return {'message': 'You are right  - - - - '}
+
+            details = json['details']
             order = mr.Order(restaurant).add({},{})
             return {'message':'You are right '+str(order)}
 
@@ -120,6 +130,7 @@ class Orders(Resource):
 
         if 'restaurant' in json:
             restaurant = json['restaurant']
+
             order = mr.Order(restaurant).get()
             return jsonify(order)
 
