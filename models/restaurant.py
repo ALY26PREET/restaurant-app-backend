@@ -1,6 +1,7 @@
 from . import restaurants
 from . import products
 from . import categories
+from . import orders
 from bson.objectid import ObjectId
 from bson.json_util import dumps
 import json
@@ -61,6 +62,17 @@ class Restaurant:
 
         return val
 
+
+class Order:
+    def __init__(self, restaurant):
+        self.restaurant = restaurant
+    def add(self, products, details):
+        order_id = str(ObjectId())
+        order = {
+            ''+order_id : {
+
+            }
+        }
 
 class Product:
     def __init__(self, restaurant, category):
