@@ -82,6 +82,10 @@ class Order:
                 'products':products, #this will be an array of objects
                 'details':details #this will be an object with 3 fields
             }
+            id = orders.find({self.restaurant:{"$exists":True}})[0]["_id"]
+
+            t = orders.update({"_id": id}, {"$push":order})
+            print(t)
             return True
         return False
 

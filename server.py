@@ -115,11 +115,9 @@ class Orders(Resource):
             print(result)
             if False in result:
                 return {'message': 'Please include name, price, qty in all products'}
-            else:
-                return {'message': 'You are right  - - - - '}
-
             details = json['details']
-            order = mr.Order(restaurant).add({},{})
+            order = mr.Order(restaurant).add(products,details)
+
             return {'message':'You are right '+str(order)}
 
 
