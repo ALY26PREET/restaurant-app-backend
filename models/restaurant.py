@@ -67,11 +67,10 @@ class Order:
     def __init__(self, restaurant):
         self.restaurant = restaurant
         if orders.find({self.restaurant: {"$exists": True}}).limit(1).count() == 0:
-            orders.insert_one({
-
-            })
+            orders.insert_one({self.restaurant:[]})
     def get(self):
         l = [x for x in orders.find({self.restaurant:{"$exists":True}}, {"_id": 0})]
+        print(l)
         return l[0][self.restaurant]
 
     def add(self, products, details):
@@ -82,10 +81,8 @@ class Order:
                 'products':products, #this will be an array of objects
                 'details':details #this will be an object with 3 fields
             }
-            id = orders.find({self.restaurant:{"$exists":True}})[0]["_id"]
-
-            t = orders.update({"_id": id}, {"$push":order})
-            print(t)
+            res = orders.update({self.restaurant:{"$exists":True}}, {"$push":{self.restaurant:order}})
+            print(res)
             return True
         return False
 
