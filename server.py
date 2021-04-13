@@ -107,21 +107,21 @@ class Orders(Resource):
         json = json if json != None else {}
         print(json)
         print("----")
-        if 'restaurant' in json:
+        if 'restaurant' in json and 'products' in json and 'details' in json:
             restaurant = json['restaurant']
             products = json['products']  # this is an array of products
 
-            result = map(lambda x: 'name' in x and 'price' in x and 'qty' in x, products)
+            result = map(lambda x: 'name' in x and 'price' in x and 'qty' in x and 'image' in x, products)
             print(result)
             if False in result:
                 return {'message': 'Please include name, price, qty in all products'}
+
             details = json['details']
-            order = mr.Order(restaurant).add(products,details)
+            order = mr.Order(restaurant).add(products, details)
+            return {'message': 'You are right ' + str(order)}
 
-            return {'message':'You are right '+str(order)}
+        return {'message': 'please include \'restaurant\' in /orders/ request'}
 
-
-        return {'message':'please include \'restaurant\' in /orders/ request'}
     def get(self):
         json = request.get_json()
         json = json if json != None else {}
@@ -133,6 +133,8 @@ class Orders(Resource):
             return jsonify(order)
 
         return {'message': 'please include \'restaurant\' in /orders/ request'}
+    def put(self):
+        pass
 
 
 api.add_resource(Restaurant, '/restaurant/')
