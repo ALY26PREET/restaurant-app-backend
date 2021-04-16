@@ -2,6 +2,7 @@ from . import restaurants
 from . import products
 from . import categories
 from . import orders
+from . import tables
 from bson.objectid import ObjectId
 from bson.json_util import dumps
 import json
@@ -23,6 +24,7 @@ class Restaurant:
             pass
 
     def add(self, restaurantName, email, password):
+        ids = str(ObjectId())
         itemsToAdd = {
             "name": restaurantName,
             "email": email,
@@ -37,10 +39,25 @@ class Restaurant:
                 "friday": [0000, 2359],
                 "saturday": [0000, 2359],
             },
-            "id": str(ObjectId())
+            "id": ids
 
         }
 
+        floors = [{
+            "restaurant":ids,
+            "floorName":floorName,
+            "tables":[],
+            "permanent":False
+        },{
+            "restaurant":ids,
+            "floorName":floorName,
+            "tables":[],
+            "permanent":False
+        }]
+
+        tables.insert_many(floors)
+
+        
         restaurants.insert_one(itemsToAdd)
 
     def getAll(self):
@@ -147,6 +164,46 @@ class Category:
     def deleteAll(self):
         categories.delete_many({})
         return {'status': 'OK', 'message': 'All categories has been successfully deleted'}
+
+
+
+class Table:
+    def __init__(self, restaurant):
+        self.restaurant = restaurant
+    def addFloor(self,floorName=None):
+        floorName = floorName if floorName != None else ""
+        floor = {
+            "restaurant":self.restaurant,
+            "floorName":floorName,
+            "tables":[],
+            "permanent":False,
+            "id":str(ObjectId())
+        }
+        restaurants.update_one({"id":self.restaurant}, {"$set":{"floors":restaurants.find({"id":self.restaurant})[0]["floors"]+1}})
+        tables.insert_one(floor)
+        return {"status":"OK","message":"New floor has been added to this restaurant."}
+    
+    def addTable(self, floor, table):
+        tableT = {
+            "table":str(ObjectId()),
+            "name":table['name'],
+            "location":table['location'],
+            "bookedTill":None
+            
+        }
+
+        tables.update_one({"id":floor}, {"$push":{"tables":tableT}})
+        return {"status":"OK", "message":"table has been added to floor"}
+
+
+    def reserveTable(self, floor, table, ticks):
+        tables.update_one({'id':floor, 'restaurant':self.restaurant, "tables.table":table}, {"$set":{"tables.$.bookedTill":ticks}})
+        return {"status":"OK", "message":"table has been added to floor"}
+
+    def getAll(self):
+        return tables.find({"restaurant":self.restaurant}, {"_id":0})
+
+
 
 # THIS IS A COMMENT AND IS MADE BY RITESH.
 

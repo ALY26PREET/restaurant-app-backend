@@ -19,6 +19,7 @@ class Restaurant(Resource):
             password = json['password']
             r = mr.Restaurant(name, email, password)
 
+
             return jsonify(
                 {'status': 'OK', 'message': 'Restaurant Created Successfully.', 'id': "Some ID Will Come here"})
         else:
@@ -97,7 +98,27 @@ class Category(Resource):
 
 class Table(Resource):
     def get(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'restaurant' in json:
+            return list(mr.Table(json['restaurant']).getAll())
         return jsonify({"message": "Will Start working on Tables soon"})
+    def post(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'restaurant' in json and 'floor_flag' in json:
+            return mr.Table(json['restaurant']).addFloor()
+        elif 'restaurant' in json and 'table' in json and 'floor' in json:
+            return mr.Table(json['restaurant']).addTable(json['floor'], json.get('table',''))
+        return {"status":"Failed"}
+
+    def put(self):
+        json = request.get_json()
+        json = json if json != None else {}
+        if 'restaurant' in json and 'table' in json and 'floor' in json and 'ticks' in json:
+            return mr.Table(json['restaurant']).reserveTable(json['floor'], json['table'], json['ticks'])
+
+
 
 
 # Restaurant -> ORDER_ID -> tray (products(product_name, category_name, price, qty) order_details(hst, subtotal, tip, total))
@@ -115,13 +136,15 @@ class Orders(Resource):
             print(result)
             if False in result:
                 return {'message': 'Please include name, price, qty in all products'}
+       
+                
 
             details = json['details']
-            order = mr.Order(restaurant).add(products, details)
-            return {'message': 'You are right ' + str(order)}
+            order = mr.Order(restaurant).add(products,details)
+            return {'message':'You are right '+str(order)}
 
-        return {'message': 'please include \'restaurant\' in /orders/ request'}
 
+        return {'message':'please include \'restaurant\' in /orders/ request'}
     def get(self):
         json = request.get_json()
         json = json if json != None else {}
@@ -133,14 +156,13 @@ class Orders(Resource):
             return jsonify(order)
 
         return {'message': 'please include \'restaurant\' in /orders/ request'}
-    def put(self):
-        pass
 
 
 api.add_resource(Restaurant, '/restaurant/')
 api.add_resource(Product, '/product/')
 api.add_resource(Category, '/category/')
 api.add_resource(Orders, '/orders/')
+api.add_resource(Table, '/table/')
 
 if __name__ == '__main__':
     app.run()
